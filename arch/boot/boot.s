@@ -41,13 +41,13 @@
 8:
 
 boot_gdt32:
-.quad 0x0000000000000000
-.quad 0x00cf9a000000ffff
-.quad 0x00cf92000000ffff
+.quad 0x0000000000000000 #null
+.quad 0x00cf9a000000ffff #code32
+.quad 0x00cf92000000ffff #data32
 boot_gdt64:
-.quad 0x0000000000000000
-.quad 0x00a09a0000000000
-.quad 0x00a0920000000000
+.quad 0x0000000000000000 #null
+.quad 0x00a09a0000000000 #code64
+.quad 0x00a0920000000000 #data64
 
 boot_gdtr32:.word 23
             .long boot_gdt32
@@ -58,15 +58,15 @@ boot_gdtr64_paging:.word 23
 
 _start32:
    pushl $0
-   pushl %eax
+   pushl %eax        #pushq %rax
    pushl $0
-   pushl %ebx
+   pushl %ebx        #pushq %rbx
 
    pushl $0x40000
    popfl
    pushfl
    orl $0x40000,(%esp)
-   jz 3f
+   jz 3f             #check if we can use cpuid
    movl $0,(%esp)
    popfl
 
@@ -76,7 +76,7 @@ _start32:
    jb 3f
 
    movl $0x80000001,%eax
-   cpuid
+   cpuid             #check if it supports x86_64
    btl $29,%edx
    jnc 3f
 
@@ -89,7 +89,7 @@ _start32:
    movw %ax,%gs
    movw %ax,%fs
    movw %ax,%ds
-   movw %ax,%ss
+   movw %ax,%ss         #refresh segment registers
 
    movl $BOOT_PAGE_PDE_ADDRESS,%eax
    movl $(1024 * 1024 * 0 + 0x83),  (%eax)
@@ -115,6 +115,7 @@ _start32:
    movl %ebx,8(%eax)
    movl $0,4(%eax)
    movl $0,12(%eax)
+                  #init page tables
 
    movl %eax,%cr3
 
@@ -132,7 +133,7 @@ _start32:
    movl %eax,%cr0
 
    lgdt (boot_gdtr64)
-   ljmp $0x8,$2f
+   ljmp $0x8,$2f #go into long mode
 2: .code64
 
    xorq %rcx,%rcx
@@ -143,8 +144,9 @@ _start32:
 
    popq %rbx
    popq %rax
-   movabs $stack_top,%rsp
+   movabs $stack_top,%rsp #kernel stack
 
+   movabs $(PAGE_OFFSET + 8),%rcx
    addq %rcx,%rbx
    movabs $_start64,%rcx
    jmp *%rcx
@@ -159,6 +161,10 @@ _start32:
 .extern kmain
 
 _start64:
+   pushq %rbx
+   pushq %rax
+   movq %rsp,%rdi
+
    callq kmain
 0:
    hlt

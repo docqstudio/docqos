@@ -23,9 +23,15 @@ SECTIONS {
    . = ALIGN(8);
 
    .data : AT( ADDR(.data) - KERNEL_PAGE_OFFSET) {
-      *(COMMON)
       *(.data)
    }
+   . = ALIGN(16);
+
+   __bootinfo_start = .;
+   .bootinfo : AT( ADDR(.bootinfo) - KERNEL_PAGE_OFFSET) {
+      *(.bootinfo)
+   }
+   __bootinfo_end = .;
    . = ALIGN(8);
 
    __multiboot_load_end = . - KERNEL_PAGE_OFFSET;

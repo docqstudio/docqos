@@ -6,19 +6,20 @@ set(CMAKE_CXX_FLAGS "-nostdlib -fexceptions \
      -mno-sse3 -mno-3dnow -fno-strict-aliasing -mcmodel=large \
      -nostdlib -m64 -fno-builtin -O3 -Wall -Werror -std=c++14 \
      -fno-rtti -Wextra")
-set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -Tkernel.ldscript -s")
 
 include_directories("include")
 
 set(SRC_LIST   arch/boot/boot.s
                arch/init.cpp
                arch/cpu/gdt.cpp
+               arch/cpu/paging.cpp
                kernel/init/main.cpp)
 set(CDROM_FILE os.iso)
 set(CDROM_DIR "cdrom")
 set(BINARY_KERNEL "cdrom/bkernel")
 
 add_executable(kernel ${SRC_LIST})
+set_target_properties(kernel PROPERTIES LINK_FLAGS "-nostdlib -Tkernel.ldscript -s")
 
 add_custom_command(OUTPUT "cdrom/efi.img"
    COMMAND cp /usr/lib/grub/x86_64-efi/kernel.img efi.img

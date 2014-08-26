@@ -1,8 +1,11 @@
 CMakeFiles/
 
-lines
-Makefile
 /compile/kernel
+.bochsrc
+parport.out
+lines
+bochsout.txt
+Makefile
 bkernel
 CMakeCache.txt
 updated
