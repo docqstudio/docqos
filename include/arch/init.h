@@ -5,13 +5,13 @@ namespace kernel
 {
    namespace init
    {
-      struct bootinfo;
+      struct bootinfo_t;
    }
 }
 
 namespace arch
 {
-   int get_bootinfo(kernel::init::bootinfo info[],size_t size,
-                  void *stack0);
+   int get_bootinfo(kernel::init::bootinfo_t info[]
+                  ,size_t size,void *stack0);
    int init(void);
 }

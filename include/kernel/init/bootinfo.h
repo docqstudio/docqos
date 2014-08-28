@@ -5,7 +5,7 @@ namespace kernel
 {
    namespace init
    {
-      struct bootinfo
+      struct bootinfo_t
       {
          enum type:uint32_t
          {
@@ -20,8 +20,8 @@ namespace kernel
       };
       struct bootinfo_receiver
       {
-         bootinfo::type type;
-         void (*receiver)(bootinfo *);
+         bootinfo_t::type type;
+         void (*receiver)(bootinfo_t *);
       };
 
       struct bootinfo_memory_map
@@ -35,7 +35,7 @@ namespace kernel
 
 #define register_bootinfo_receiver(type,receiver) \
    __attribute__((section(".bootinfo"))) \
-   static volatile kernel::init::bootinfo_receiver \
+   static volatile ::kernel::init::bootinfo_receiver \
                __bir_##receiver{type,receiver};
          //saves the receiver to the section ".bootinfo"
    }

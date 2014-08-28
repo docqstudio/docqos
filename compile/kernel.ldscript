@@ -32,6 +32,13 @@ SECTIONS {
       *(.bootinfo)
    }
    __bootinfo_end = .;
+
+   __init_array_start = .;
+   .init_array : AT( ADDR(.init_array) - KERNEL_PAGE_OFFSET) {
+      *(.init_array)
+   }
+   __init_array_end = .;
+
    . = ALIGN(8);
 
    __multiboot_load_end = . - KERNEL_PAGE_OFFSET;

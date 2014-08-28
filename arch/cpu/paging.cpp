@@ -1,31 +1,19 @@
 #include <arch/cpu/paging.h>
 #include <kernel/init/bootinfo.h>
+#include <kernel/memory/memory.h>
 
 namespace arch
 {
    namespace cpu
    {
-      using kernel::init::bootinfo;
+      using kernel::init::bootinfo_t;
       using kernel::init::bootinfo_memory_map;
 
       extern "C" void *__kernel_end;
-      static size_t memory_size = 4ul * 1024 * 1024 * 1024;
-      
-      static void receive_memory_map(bootinfo *info)
-      { //FIXME:in fact,this function should NOT write here
-        //it should write into /kernel/memory/memory.cpp
-         bootinfo_memory_map *map = (decltype(map))info->data;
-         size_t count = (info->size - sizeof(*info)) / sizeof(*map);
-         
-         for(unsigned int i = 0;i < count;++i)
-            if(map[i].type == bootinfo_memory_map::normal)
-               memory_size = map[i].end; //get memory size from memory map
-      }
 
       void init_paging(void)
       {
-         //size_t mapping_size = kernel::memory::get_memory_size();
-         size_t mapping_size = memory_size;
+         size_t mapping_size = kernel::memory::get_memory_size();
          //calculate the number of pages
          size_t pmd_count = mapping_size / (1024 * 1024 * 2);
          if(mapping_size % (1024 * 1024 * 2) != 0)
@@ -75,7 +63,5 @@ namespace arch
 
          load_pgd((pgd_t *)kernel_pgd); //load pages
       }
-
-      register_bootinfo_receiver(bootinfo::memory_map,receive_memory_map);
    }
 }

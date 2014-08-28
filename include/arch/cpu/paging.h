@@ -10,6 +10,11 @@ namespace arch
       //pmd => pde
       //pte => pte
 
+      const size_t page_size = 4096;
+      const size_t page_shift = 12;
+      //arch::cpu::page_size is different 
+      // from kernel::memory::page_size
+
       const size_t page_offset = 0x8000000000;
 
       typedef struct {uint64_t val;} pgd_t;

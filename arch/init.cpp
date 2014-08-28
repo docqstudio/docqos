@@ -1,12 +1,13 @@
 #include <arch/init.h>
 #include <arch/cpu/gdt.h>
 #include <arch/cpu/paging.h>
+#include <kernel/compiler.h>
 #include <kernel/init/bootinfo.h>
-
-using kernel::init::bootinfo;
 
 namespace arch
 {
+   using kernel::init::bootinfo_t;
+   using kernel::init::bootinfo_memory_map;
    const uint32_t multiboot_magic = 0x36d76289;
 
       //some multiboot2 structs
@@ -85,20 +86,18 @@ namespace arch
    } struct_packed;
 
    static int copy_memory_map(
-            multiboot_memory_map *map0,bootinfo *map1,
+            multiboot_memory_map *map0,bootinfo_t *map1,
             size_t &size)
    {
-      using kernel::init::bootinfo_memory_map;
-
       map0->count = (map0->tag.size - sizeof(*map0)) / map0->count;
-      size_t size0 = sizeof(bootinfo) * 2 + 
+      size_t size0 = sizeof(bootinfo_t) * 2 + 
             map0->count * sizeof(bootinfo_memory_map);
       if(size < size0)
          return -1; //no enough space to save memory map
       size -= size0;
 
-      map1->t = bootinfo::memory_map;
-      map1->size = size0 - sizeof(bootinfo);
+      map1->t = bootinfo_t::memory_map;
+      map1->size = size0 - sizeof(bootinfo_t);
 
       bootinfo_memory_map *map = 
                (bootinfo_memory_map *)map1->data;
@@ -117,7 +116,7 @@ namespace arch
       return 0;
    }
 
-   int get_bootinfo(bootinfo info[],size_t size,
+   int get_bootinfo(bootinfo_t info[],size_t size,
                   void *stack0)
    {
       struct {uint64_t magic;multiboot_tag *tags;} struct_packed
@@ -136,7 +135,7 @@ namespace arch
             if(copy_memory_map(
                (multiboot_memory_map *)tags,info,size))
                goto end; //copy memory map from multiboot tag to boot information
-            info = (bootinfo *)((uint8_t *)info + info->size);
+            info = (bootinfo_t *)((uint8_t *)info + info->size);
             break;
          default:
             break;
@@ -146,7 +145,7 @@ namespace arch
                //next tag
       }
 end:
-      info->t = bootinfo::end; 
+      info->t = bootinfo_t::end; 
       return 0;
    }
 

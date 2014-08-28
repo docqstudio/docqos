@@ -13,13 +13,17 @@ set(SRC_LIST   arch/boot/boot.s
                arch/init.cpp
                arch/cpu/gdt.cpp
                arch/cpu/paging.cpp
+               kernel/memory/memory.cpp
+               kernel/memory/buddy.cpp
+               kernel/init/icxxabi.cpp
                kernel/init/main.cpp)
 set(CDROM_FILE os.iso)
 set(CDROM_DIR "cdrom")
 set(BINARY_KERNEL "cdrom/bkernel")
 
 add_executable(kernel ${SRC_LIST})
-set_target_properties(kernel PROPERTIES LINK_FLAGS "-nostdlib -Tkernel.ldscript -s")
+set_target_properties(kernel PROPERTIES LINK_FLAGS 
+        "-nostdlib -Tkernel.ldscript -s -Wl,-MAP")
 
 add_custom_command(OUTPUT "cdrom/efi.img"
    COMMAND cp /usr/lib/grub/x86_64-efi/kernel.img efi.img

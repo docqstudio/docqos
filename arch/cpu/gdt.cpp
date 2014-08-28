@@ -1,5 +1,6 @@
 #include <arch/cpu/type.h>
 #include <arch/cpu/gdt.h>
+#include <kernel/compiler.h>
 
 namespace arch
 {

@@ -164,8 +164,30 @@ _start64:
    pushq %rbx
    pushq %rax
    movq %rsp,%rdi
+   pushq %rdi
 
+   movabs $__init_array_start,%rax
+   movabs $__init_array_end,%rbx
+1:
+   cmpq %rax,%rbx
+   je 2f
+   pushq %rax
+   pushq %rbx
+   callq *(%rax)
+         //call functions in init_array
+   popq %rbx
+   popq %rax
+   addq $8,%rax
+   jmp 1b
+2:
+
+   popq %rdi
    callq kmain
+
+   movq $0,%rdi
+   callq __cxa_finalize
+         //call the destructor functions
+
 0:
    hlt
    jmp 0b

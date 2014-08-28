@@ -1,5 +1,6 @@
 #include <arch/init.h>
 #include <kernel/init/bootinfo.h>
+#include <kernel/memory/buddy.h>
 
 namespace kernel
 {
@@ -9,10 +10,9 @@ namespace kernel
       extern "C" bootinfo_receiver __bootinfo_start;
       extern "C" bootinfo_receiver __bootinfo_end;
 
-      static void parse_bootinfo(
-         kernel::init::bootinfo *info)
+      static void parse_bootinfo(bootinfo_t *info)
       {
-         while(info->t != kernel::init::bootinfo::end)
+         while(info->t != bootinfo_t::end)
          {
             bootinfo_receiver *receiver = &__bootinfo_start;
             while(receiver < &__bootinfo_end)
@@ -20,14 +20,11 @@ namespace kernel
                //foreach receivers to find the receiver
                // that wants receive this boot information
                if(receiver->type == info->t)
-               {
                   (*receiver->receiver)(info);
-                  break;
-               }
                ++receiver;
             }
 
-            info = (bootinfo *)((uint8_t *)info + info->size);
+            info = (bootinfo_t *)((uint8_t *)info + info->size);
          }
       }
 
@@ -35,14 +32,18 @@ namespace kernel
       {
          __kernel_end = &__kernel_end + sizeof(__kernel_end);
               //set kernel end address
+
          {
             uint8_t bootinfo[200];
             arch::get_bootinfo(
-               (kernel::init::bootinfo *)bootinfo,
+               (bootinfo_t *)bootinfo,
                sizeof(bootinfo),bootloader);
-            parse_bootinfo((kernel::init::bootinfo *)bootinfo);
+            parse_bootinfo((bootinfo_t *)bootinfo);
          }   //get and parse bootinfo
          arch::init();
+
+         kernel::memory::init_buddy_system();
+
          return 0;
       }
    }
